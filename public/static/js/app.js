@@ -76,67 +76,29 @@
 
 window.require.define({"application": function(exports, require, module) {
   (function() {
-    var Application, Employees, Login, Router,
+    var Application, Login, Router,
       __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
     Login = require('lib/login');
 
     Router = require('lib/router');
 
-    Employees = require('collections/employees');
-
     Application = (function() {
 
       function Application() {
-        this.fetchResources = __bind(this.fetchResources, this);
         this.initialize = __bind(this.initialize, this);
       }
 
       Application.prototype.initialize = function() {
-        var _this = this;
         this.login = new Login(env);
         this.views = {};
         this.collections = {};
-        return this.login.verifyUser(function(data) {
-          return _this.fetchResources(function() {
-            $('#loader').hide();
-            _this.router = new Router;
-            Backbone.history.start({
-              pushState: location.href.split('.')[0].replace(/https?:\/\//, '').toLowerCase() !== 'local',
-              root: '/'
-            });
-            return typeof Object.freeze === "function" ? Object.freeze(_this) : void 0;
-          });
+        this.router = new Router;
+        Backbone.history.start({
+          pushState: location.href.split('.')[0].replace(/https?:\/\//, '').toLowerCase() !== 'local',
+          root: '/'
         });
-      };
-
-      Application.prototype.fetchResources = function(success) {
-        var resolve, resources,
-          _this = this;
-        this.resolve_countdown = 0;
-        resolve = function() {
-          _this.resolve_countdown -= 1;
-          if (_this.resolve_countdown === 0) return success();
-        };
-        resources = [
-          {
-            collection_key: 'employees',
-            collection: Employees,
-            error_phrase: 'employees'
-          }
-        ];
-        return _.each(resources, function(r) {
-          _this.resolve_countdown += 1;
-          _this.collections[r.collection_key] = new r.collection;
-          return _this.collections[r.collection_key].fetch({
-            error: function() {
-              return utils.simpleError("An error occurred while trying to load " + constants.company_name + " " + r.error_phrase + ".");
-            },
-            success: function() {
-              return resolve();
-            }
-          });
-        });
+        return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
       };
 
       return Application;
@@ -166,47 +128,6 @@ window.require.define({"collections/collection": function(exports, require, modu
       return Collection;
 
     })(Backbone.Collection);
-
-  }).call(this);
-  
-}});
-
-window.require.define({"collections/employees": function(exports, require, module) {
-  (function() {
-    var Collection, Employees,
-      __hasProp = Object.prototype.hasOwnProperty,
-      __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-    Collection = require('./collection');
-
-    Employees = (function(_super) {
-
-      __extends(Employees, _super);
-
-      function Employees() {
-        Employees.__super__.constructor.apply(this, arguments);
-      }
-
-      Employees.prototype.url = function() {
-        if (location.href.split('.')[0].replace(/https?:\/\//, '').toLowerCase() !== 'local') {
-          return "https://api.hubapi.com/awth/v1/users?active=true&realm-id=3&active-permissions=true&access_token=" + app.login.context.auth.access_token.token;
-        } else {
-          return 'https://api.hubapi.com/awth/v1/users?active=true&realm-id=3&active-permissions=true&hapikey=1ede2a35-94a6-40c0-a4ff-5fa72c6dc1c2';
-        }
-      };
-
-      Employees.prototype.parse = function(data) {
-        return _.map(data.users, function(employee) {
-          employee.gravatar = "https://secure.gravatar.com/avatar/" + (CryptoJS.MD5(employee.email)) + "?d=http://i48.tinypic.com/mhrdpf_th.png";
-          return employee;
-        });
-      };
-
-      return Employees;
-
-    })(Collection);
-
-    module.exports = Employees;
 
   }).call(this);
   
