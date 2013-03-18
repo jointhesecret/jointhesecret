@@ -35,6 +35,8 @@ class Application
 
         Object.freeze? @
 
+        application.init()
+
     # fetchResources: (success) =>
     #     @resolve_countdown = 0
 

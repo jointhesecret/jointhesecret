@@ -98,7 +98,8 @@ window.require.define({"application": function(exports, require, module) {
           pushState: location.href.split('.')[0].replace(/https?:\/\//, '').toLowerCase() !== 'local',
           root: '/'
         });
-        return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
+        if (typeof Object.freeze === "function") Object.freeze(this);
+        return application.init();
       };
 
       return Application;
@@ -265,10 +266,7 @@ window.require.define({"lib/router": function(exports, require, module) {
       };
 
       Router.prototype.appHandler = function() {
-        navHandler();
-        if (!(app.views.appView != null)) app.views.appView = new Application;
-        app.views.current_view = app.views.appView;
-        return app.views.appView.render();
+        return log('app handler');
       };
 
       return Router;
@@ -731,10 +729,9 @@ window.require.define({"views/app": function(exports, require, module) {
         }
       };
 
-      UIManager.prototype.$appContainer = $('.js-app-window-container');
-
       function UIManager() {
         var mouseMoveTimeout;
+        this.$appContainer = $('.js-app-window-container');
         mouseMoveTimeout = void 0;
         $(window).mousemove(function() {
           if (mouseMoveTimeout) clearTimeout(mouseMoveTimeout);
@@ -788,7 +785,7 @@ window.require.define({"views/app": function(exports, require, module) {
         this.options = $.extend(true, {}, Application.defaults, options);
       }
 
-      Application.prototype.render = function() {
+      Application.prototype.init = function() {
         var that;
         that = this;
         this.setupDom();
@@ -916,7 +913,7 @@ window.require.define({"views/app": function(exports, require, module) {
           log('Searching YouTube for', searchQuery);
           jsonp = '&alt=json-in-script&callback=?';
           containerId = 'js-youtube-video-container-' + (+Date());
-          return $.getJSON("http://gdata.youtube.com/feeds/api/videos?max-results=1&vq=" + (escape(searchQuery)) + jsonp, function(data) {
+          return $.getJSON("" + location.protocol + "//gdata.youtube.com/feeds/api/videos?max-results=1&vq=" + (escape(searchQuery)) + jsonp, function(data) {
             var $window, apiId, item, title, videoId;
             if (!data.feed.entry.length) return;
             item = data.feed.entry[0];
@@ -984,7 +981,7 @@ window.require.define({"views/app": function(exports, require, module) {
           lon = position.coords.longitude;
           geoAPI = "http://where.yahooapis.com/geocode?location=" + lat + "," + lon + "&flags=J&gflags=R&appid=" + APPID;
           wsql = "select * from weather.forecast where woeid=WID and u=\"" + DEG + "\"";
-          weatherYQL = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(wsql) + "&format=json&callback=?";
+          weatherYQL = ("" + location.protocol + "//query.yahooapis.com/v1/public/yql?q=") + encodeURIComponent(wsql) + "&format=json&callback=?";
           code = void 0;
           city = void 0;
           results = void 0;
@@ -1013,16 +1010,16 @@ window.require.define({"views/app": function(exports, require, module) {
                 $location.html(city + ", <b>" + code + "</b>");
                 return $weather.addClass("loaded");
               } else {
-                return showError("Error retrieving weather data!");
+                return showError("Error retrieving weather data.");
               }
             });
           }).error(function() {
-            return showError("Your browser does not support CORS requests!");
+            return showError("Your browser does not support CORS requests.");
           });
         };
         addWeather = function(code, day, condition) {
           var markup;
-          markup = "<li>" + "<img src=\"images/weather/" + weatherIconMap[code] + ".png\" />" + " <p class=\"day\">" + day + "</p> <p class=\"cond\">" + condition + "</p></li>";
+          markup = "<li>" + "<img src=\"/static/images/weather/" + weatherIconMap[code] + ".png\" />" + " <p class=\"day\">" + day + "</p> <p class=\"cond\">" + condition + "</p></li>";
           return $days.append(markup);
         };
         locationError = function(error) {
@@ -1065,7 +1062,7 @@ window.require.define({"views/app": function(exports, require, module) {
       }
     };
 
-    module.exports = Application;
+    window.application = new Application;
 
   }).call(this);
   

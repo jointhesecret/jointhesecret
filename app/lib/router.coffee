@@ -22,11 +22,12 @@ class Router extends Backbone.Router
     #     $('#page').html require "../views/templates/#{Backbone.history.fragment}"
 
     appHandler: ->
-        navHandler()
-        if not app.views.appView?
-            app.views.appView = new Application
-        app.views.current_view = app.views.appView
-        app.views.appView.render()
+        log 'app handler'
+        # navHandler()
+        # if not app.views.appView?
+        #     app.views.appView = new Application
+        # app.views.current_view = app.views.appView
+        # app.views.appView.render()
 
     # show404Page: ->
     #     navHandler()

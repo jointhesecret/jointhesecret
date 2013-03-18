@@ -210,9 +210,9 @@ class UIManager
         window:
             extraClasses: ''
 
-    $appContainer: $('.js-app-window-container')
-
     constructor: ->
+        @$appContainer = $('.js-app-window-container')
+
         mouseMoveTimeout = undefined
         $(window).mousemove ->
             clearTimeout mouseMoveTimeout if mouseMoveTimeout
@@ -258,7 +258,7 @@ class Application
     constructor: (options) ->
         @options = $.extend true, {}, Application.defaults, options
 
-    render: ->
+    init: ->
         that = @
 
         @setupDom()
@@ -376,7 +376,7 @@ defaultApps =
             jsonp = '&alt=json-in-script&callback=?'
             containerId = 'js-youtube-video-container-' + (+ Date())
 
-            $.getJSON "http://gdata.youtube.com/feeds/api/videos?max-results=1&vq=#{escape(searchQuery)}#{jsonp}", (data) ->
+            $.getJSON "#{location.protocol}//gdata.youtube.com/feeds/api/videos?max-results=1&vq=#{escape(searchQuery)}#{jsonp}", (data) ->
                 return unless data.feed.entry.length
                 item = data.feed.entry[0]
                 apiId = item.id.$t
@@ -456,7 +456,7 @@ defaultApps =
             # Forming the query for Yahoo's weather forecasting API with YQL
             # http://developer.yahoo.com/weather/
             wsql = "select * from weather.forecast where woeid=WID and u=\"" + DEG + "\""
-            weatherYQL = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(wsql) + "&format=json&callback=?"
+            weatherYQL = "#{location.protocol}//query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(wsql) + "&format=json&callback=?"
             code = undefined
             city = undefined
             results = undefined
@@ -486,13 +486,13 @@ defaultApps =
                         $weather.addClass "loaded"
 
                     else
-                        showError "Error retrieving weather data!"
+                        showError "Error retrieving weather data."
 
             ).error ->
-                showError "Your browser does not support CORS requests!"
+                showError "Your browser does not support CORS requests."
 
         addWeather = (code, day, condition) ->
-            markup = "<li>" + "<img src=\"images/weather/" + weatherIconMap[code] + ".png\" />" + " <p class=\"day\">" + day + "</p> <p class=\"cond\">" + condition + "</p></li>"
+            markup = "<li>" + "<img src=\"/static/images/weather/" + weatherIconMap[code] + ".png\" />" + " <p class=\"day\">" + day + "</p> <p class=\"cond\">" + condition + "</p></li>"
             $days.append markup
 
         locationError = (error) ->
@@ -536,4 +536,4 @@ defaultApps =
             ]
         }
 
-module.exports = Application
+window.application = new Application
